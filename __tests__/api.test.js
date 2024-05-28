@@ -35,3 +35,13 @@ describe("GET /api/topics", () => {
     })
   })
 });
+
+describe('GET /api', () => {
+  test('200: responds with all ok message', () => {
+    return request(app)
+    .get('/api')
+    .expect(200).then ((res) => {
+      expect(res.body.msg).toBe('all ok')
+    })
+  });
+});
