@@ -3,6 +3,7 @@ const app = require("../app");
 const data = require("../db/data/test-data/index");
 const connection = require("../db/connection");
 const seed = require("../db/seeds/seed");
+const fs = require('fs/promises');
 
 beforeEach(() => {
   return seed(data);
@@ -37,11 +38,16 @@ describe("GET /api/topics", () => {
 });
 
 describe('GET /api', () => {
-  test('200: responds with all ok message', () => {
-    return request(app)
+  test('200: responds with the correct json object', () => {
+    return fs.readFile('./endpoints.json', 'utf-8')
+    .then((endPoints) => {
+      const parSedEndpoints = JSON.parse(endPoints);
+      
+      return request(app)
     .get('/api')
     .expect(200).then ((res) => {
-      expect(res.body.msg).toBe('all ok')
+      expect(res.body).toEqual(parSedEndpoints)
+    })
     })
   });
 });

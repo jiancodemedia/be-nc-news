@@ -11,9 +11,8 @@ exports.getTopics = (req, res, next) => {
 }
 
 exports.getApi = (req, res, next) => {
-    fs.readFile('./endpoints.json', 'utf-8', (data) => {
-        console.log(data)
-    })
-
-    res.status(200).send({msg: 'all ok'})
+   return fs.readFile('./endpoints.json', 'utf-8').then((data) => {
+        const endpoint = JSON.parse(data)
+        res.status(200).send(endpoint)
+    }) 
 }
