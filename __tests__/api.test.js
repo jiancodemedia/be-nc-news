@@ -133,6 +133,7 @@ describe('GET /api/articles/:article_id/comments', () => {
       .expect(200)
       .then(({body}) => {
         const {comments} = body
+        expect(comments).toHaveLength(11)
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -145,6 +146,14 @@ describe('GET /api/articles/:article_id/comments', () => {
         })
       })
   })
+  test('200: responds with an empty array when valid ID but there are no comments', () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({body}) => {
+        expect(body.comments).toEqual([])
+      })
+  });
   test('200: responds with an array of comments with most recent comments first', () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -171,3 +180,56 @@ describe('GET /api/articles/:article_id/comments', () => {
     })
   });
 });
+
+describe('POST /api/articles/:article_id/comments', () => {
+  test('201: responds with the posted comment', () => {
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send({username: 'rogersop',
+      body: 'comment here'
+    })
+    .expect(201)
+    .then(({body}) => {
+      const {comment} = body
+      expect(comment).toMatchObject({
+        author: 'rogersop',
+        body: 'comment here'
+      })
+    })
+  })
+  test('400: responds with an error message when missing required field', () => {
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send({username: 'rogersop'})
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Missing required field')
+    })
+  });
+  test('404: responds with error msg when article not exists', () => {
+    return request(app)
+    .post('/api/articles/10000000/comments')
+    .send({username: 'rogersop',
+    body: 'comment here'
+  })
+  .expect(404)
+  .then((response) => {
+    expect(response.body.msg).toBe('Article not found')
+  })
+  });
+  test('400: responds with error msg when invalid ID', () => {
+    return request(app)
+    .post('/api/articles/invalid/comments')
+    .send({username: 'rogersop',
+    body: 'comment here'
+  })
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Invalid ID')
+    })
+  });
+});
+  
+
+        
+  
