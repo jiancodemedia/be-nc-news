@@ -1,6 +1,6 @@
 const express = require("express")
 
-const {getTopics, getApi, getArticleById, getArticles} = require('./controllers/api_controller')
+const {getTopics, getApi, getArticleById, getArticles, getCommentsByArticleId} = require('./controllers/api_controller')
 
 const app = express();
 
@@ -11,6 +11,8 @@ app.get('/api', getApi)
 app.get('/api/articles/:article_id', getArticleById)
 
 app.get('/api/articles', getArticles)
+
+app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
 app.use((err, req, res, next) => {
     if (err.code === '22P02') {
@@ -27,7 +29,7 @@ app.all('*', (req, res) => {
 })
 
 app.use((err, req, res, next) => {
-    res.status(500).send({msg: 'Serve Broken'})
+    res.status(500).send({msg: 'Server Broken'})
 })
 
 module.exports = app;

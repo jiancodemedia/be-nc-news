@@ -125,4 +125,49 @@ describe('GET /api/articles', () => {
       });
   });
 });
-          
+         
+describe('GET /api/articles/:article_id/comments', () => {
+  test('200: responds with an array of comments with correct properties', () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({body}) => {
+        const {comments} = body
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          })
+        })
+      })
+  })
+  test('200: responds with an array of comments with most recent comments first', () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({body}) => {
+        const {comments} = body
+        expect(comments).toBeSortedBy('created_at', {descending: true})
+      })
+  })
+  test('404: responds with an error message when article not found', () => {
+    return request(app)
+    .get('/api/articles/99999/comments')
+    .expect(404)
+    .then((res) => {
+      expect(res.body.msg).toBe('Article not found')
+    })
+  });
+  test('400: responds with an error message when invalid ID', () => {
+    return request(app)
+    .get('/api/articles/banana')
+    .expect(400)
+    .then ((res) => {
+      expect(res.body.msg).toBe('Invalid ID')
+    })
+  });
+});

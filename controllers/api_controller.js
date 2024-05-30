@@ -1,4 +1,5 @@
-const { fetchTopics, fetchArticleById, fetchArticles } = require("../models/api_model");
+const { fetchTopics, fetchArticleById, fetchArticles, fetchCommentsByArticleId } = require("../models/api_model");
+const {checkArticleExist} = require('../models/article_id_model')
 const endPoints = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
@@ -37,7 +38,23 @@ fetchArticles()
     res.status(200).send({articles})
 })
 .catch((err) => {
-    
     next(err)
 })
+}
+
+exports.getCommentsByArticleId = (req, res, next) => {
+ const {article_id} = req.params
+ checkArticleExist(article_id)
+ .then((exists) => {
+    if(!exists) {
+        return Promise.reject({status: 404, msg: 'Article not found'})
+    }
+    return fetchCommentsByArticleId(article_id)
+ })
+ .then ((comments) => {
+    res.status(200).send({comments})
+ })
+ .catch((err) => {
+    next(err)
+ })
 }
