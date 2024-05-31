@@ -80,3 +80,11 @@ exports.deleteCommentById = (comment_id) => {
     return result.rowCount > 0
   })
 }
+
+exports.fetchUsers = () => {
+  return db.query(`
+  SELECT * FROM users;`)
+  .then((result) => {
+    return result.rows
+  })
+}

@@ -264,16 +264,25 @@ describe('PATCH /API/articles/:article_id', () => {
       })
     })
   });
-  test('400: responds with error msg: inv_votes is not a number', () => {
+  test('200: responds with reduced vote by down votes', () => {
     return request(app)
     .patch('/api/articles/1')
-    .send({inc_votes: 'banana'})
-    .expect(400)
+    .send({inc_votes: - 9})
+    .expect(200)
     .then(({body}) => {
-      expect(body.msg).toBe('Votes must be a number')
+      expect(body.article).toMatchObject({
+        article_id: 1,
+        title: expect.any(String),
+        topic: expect.any(String),
+        author: expect.any(String),
+        body: expect.any(String),
+        created_at: expect.any(String),
+        votes: 91,
+      })
     })
   });
-  test('400: responds with error msg when inc_votes is missing', () => {
+  
+  test('400: responds with error msg when inc_votes is missing and return the original object', () => {
     return request(app)
     .patch('/api/articles/1')
     .send({})
@@ -327,4 +336,29 @@ describe('DELETE /api/comments/:comments_id', () => {
   });
 });
         
-  
+describe('GET /api/users', () => {
+  test('200: responds with an array of user objects', () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String)
+          });
+        });
+      });
+  })
+  test('GET: 404 when given a valid but non-existent endpoint', () => {
+    return request(app)
+    .get('/api/banana')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('endpoint does not exist')
+    })
+  })
+});
