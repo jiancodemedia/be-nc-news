@@ -5,6 +5,7 @@ const {
   fetchCommentsByArticleId,
   addCommentToArticle,
   updateArticleVotes,
+  deleteCommentById,
 } = require("../models/api_model");
 const { checkArticleExist } = require("../models/article_id_model");
 const endPoints = require("../endpoints.json");
@@ -79,9 +80,14 @@ exports.addComments = (req, res, next) => {
 exports.patchArticleVotes= (req, res, next) => {
   const {article_id} = req.params
   const {inc_votes} = req.body
-  if(typeof inc_votes !== 'number') {
-    return res.status(400).send({msg: 'Votes must be a number'})
+  
+  if (inc_votes === undefined){
+    return res.status(400).send({msg: 'Vote missing'})
   }
+  if(isNaN(inc_votes)) {
+    return res.status(400).send({msg: 'Votes must be a number'})
+  } 
+  
   checkArticleExist(article_id)
     .then((exists) => {
       if (!exists) {
@@ -91,6 +97,20 @@ exports.patchArticleVotes= (req, res, next) => {
     })
       .then((update) => {
     res.status(200).send({article: update})
+  })
+  .catch((err) => {
+    next(err)
+  })
+}
+
+exports.deleteComment = (req, res, next) => {
+  const {comment_id} = req.params
+  deleteCommentById(comment_id)
+  .then((comment) => {
+    if(!comment) {
+      return Promise.reject({status: 404, msg: 'Comment not found'})
+    }
+    res.status(204).send()
   })
   .catch((err) => {
     next(err)
