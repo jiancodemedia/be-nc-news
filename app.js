@@ -1,4 +1,5 @@
 const express = require("express");
+const app = express();
 
 const {
   getTopics,
@@ -8,9 +9,10 @@ const {
   getCommentsByArticleId,
   addComments,
   patchArticleVotes,
+  deleteComment,
 } = require("./controllers/api_controller");
 
-const app = express();
+
 
 app.use(express.json());
 
@@ -27,6 +29,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", addComments);
 
 app.patch("/api/articles/:article_id", patchArticleVotes);
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
@@ -49,4 +53,8 @@ app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Server Broken" });
 });
 
+// app.listen(9090, (err) => {
+//     if(err) console.log(err)
+//         else console.log('Listening on port 9090')
+// })
 module.exports = app;

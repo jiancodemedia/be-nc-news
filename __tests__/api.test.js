@@ -273,6 +273,17 @@ describe('PATCH /API/articles/:article_id', () => {
       expect(body.msg).toBe('Votes must be a number')
     })
   });
+  test('400: responds with error msg when inc_votes is missing', () => {
+    return request(app)
+    .patch('/api/articles/1')
+    .send({})
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe('Vote missing')
+    })
+  })
+  
+
   test('404: responds with error msg when article not exists', () => {
     return request(app)
     .patch('/api/articles/19999')
@@ -293,5 +304,27 @@ describe('PATCH /API/articles/:article_id', () => {
   })
 });
 
+describe('DELETE /api/comments/:comments_id', () => {
+  test('204: deletes the comment by comment_id', () => {
+    return request(app)
+    .delete('/api/comments/1')
+    .expect(204)
+  });
+  test('404: responds with an error message when comment_id not exists', () => {return request(app)
+    .delete('/api/comments/99999')
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe('Comment not found')
+    })
+  });
+  test('400: responds with an error msg when comment_id is invalid ', () => {
+    return request(app)
+    .delete('/api/comments/invalid')
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe('Invalid ID')
+    })
+  });
+});
         
   
