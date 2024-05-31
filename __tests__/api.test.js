@@ -192,31 +192,47 @@ describe('POST /api/articles/:article_id/comments', () => {
     .then(({body}) => {
       const {comment} = body
       expect(comment).toMatchObject({
+        comment_id: 19,
+        body: 'comment here',
+        article_id: 1,
         author: 'rogersop',
-        body: 'comment here'
+        votes: 0,
       })
     })
   })
-  test('400: responds with an error message when missing required field', () => {
+  test('201: ignores unnecessary properties', () => {
     return request(app)
     .post('/api/articles/1/comments')
-    .send({username: 'rogersop'})
-    .expect(400)
+    .send({
+      username: 'rogersop',
+      body: 'comment here',
+      random: 'ignore this'
+    })
+    .expect(201)
+    .then(({body}) => {
+      const {comment} = body
+      expect(comment).toMatchObject({
+        comment_id: 19,
+        body: 'comment here',
+        article_id: 1,
+        author: 'rogersop',
+        votes: 0,
+      })
+    })
+  })
+  test('404: responds with error msg when username does not exist', () => {
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send({
+      username: 'banana',
+      body: 'comment here'
+    })
+    .expect(404)
     .then((response) => {
-      expect(response.body.msg).toBe('Missing required field')
+      expect(response.body.msg).toBe('Username not found')
     })
   });
-  test('404: responds with error msg when article not exists', () => {
-    return request(app)
-    .post('/api/articles/10000000/comments')
-    .send({username: 'rogersop',
-    body: 'comment here'
-  })
-  .expect(404)
-  .then((response) => {
-    expect(response.body.msg).toBe('Article not found')
-  })
-  });
+
   test('400: responds with error msg when invalid ID', () => {
     return request(app)
     .post('/api/articles/invalid/comments')
@@ -230,6 +246,52 @@ describe('POST /api/articles/:article_id/comments', () => {
   });
 });
   
+describe('PATCH /API/articles/:article_id', () => {
+  test('200: responds with the updated article', () => {
+    return request(app)
+    .patch('/api/articles/1')
+    .send({inc_votes: 9})
+    .expect(200)
+    .then(({body}) => {
+      expect(body.article).toMatchObject({
+        article_id: 1,
+        title: expect.any(String),
+        topic: expect.any(String),
+        author: expect.any(String),
+        body: expect.any(String),
+        created_at: expect.any(String),
+        votes: 109,
+      })
+    })
+  });
+  test('400: responds with error msg: inv_votes is not a number', () => {
+    return request(app)
+    .patch('/api/articles/1')
+    .send({inc_votes: 'banana'})
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe('Votes must be a number')
+    })
+  });
+  test('404: responds with error msg when article not exists', () => {
+    return request(app)
+    .patch('/api/articles/19999')
+    .send({inc_votes: 1})
+  .expect(404)
+  .then(({body}) => {
+    expect(body.msg).toBe('Article not found')
+  })
+  })
+  test('400: responds with error msg when article not exists', () => {
+    return request(app)
+    .patch('/api/articles/invalid')
+    .send({inc_votes: 1})
+  .expect(400)
+  .then(({body}) => {
+    expect(body.msg).toBe('Invalid ID')
+  })
+  })
+});
 
         
   
