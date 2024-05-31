@@ -264,6 +264,7 @@ describe('PATCH /API/articles/:article_id', () => {
       })
     })
   });
+  
   test('400: responds with error msg: inv_votes is not a number', () => {
     return request(app)
     .patch('/api/articles/1')
@@ -327,4 +328,5 @@ describe('DELETE /api/comments/:comments_id', () => {
   });
 });
         
+
   

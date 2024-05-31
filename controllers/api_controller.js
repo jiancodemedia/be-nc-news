@@ -80,7 +80,7 @@ exports.addComments = (req, res, next) => {
 exports.patchArticleVotes= (req, res, next) => {
   const {article_id} = req.params
   const {inc_votes} = req.body
-  
+
   if (inc_votes === undefined){
     return res.status(400).send({msg: 'Vote missing'})
   }
@@ -116,3 +116,4 @@ exports.deleteComment = (req, res, next) => {
     next(err)
   })
 }
+
