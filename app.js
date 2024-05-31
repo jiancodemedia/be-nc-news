@@ -10,6 +10,7 @@ const {
   addComments,
   patchArticleVotes,
   deleteComment,
+  getUsers
 } = require("./controllers/api_controller");
 
 
@@ -32,6 +33,8 @@ app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.delete("/api/comments/:comment_id", deleteComment)
 
+app.get('/api/users', getUsers)
+
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
     return res.status(400).send({ msg: "Invalid ID" });
@@ -53,8 +56,5 @@ app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Server Broken" });
 });
 
-// app.listen(9090, (err) => {
-//     if(err) console.log(err)
-//         else console.log('Listening on port 9090')
-// })
+
 module.exports = app;

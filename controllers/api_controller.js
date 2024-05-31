@@ -6,6 +6,7 @@ const {
   addCommentToArticle,
   updateArticleVotes,
   deleteCommentById,
+  fetchUsers,
 } = require("../models/api_model");
 const { checkArticleExist } = require("../models/article_id_model");
 const endPoints = require("../endpoints.json");
@@ -84,9 +85,6 @@ exports.patchArticleVotes= (req, res, next) => {
   if (inc_votes === undefined){
     return res.status(400).send({msg: 'Vote missing'})
   }
-  if(isNaN(inc_votes)) {
-    return res.status(400).send({msg: 'Votes must be a number'})
-  } 
   
   checkArticleExist(article_id)
     .then((exists) => {
@@ -111,6 +109,16 @@ exports.deleteComment = (req, res, next) => {
       return Promise.reject({status: 404, msg: 'Comment not found'})
     }
     res.status(204).send()
+  })
+  .catch((err) => {
+    next(err)
+  })
+}
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers()
+  .then((users) => {
+    res.status(200).send({users})
   })
   .catch((err) => {
     next(err)
